@@ -59,7 +59,7 @@ css_code = """
     section[data-testid="stSidebar"] {
         background: #ffffff !important;
         border-right: 1px solid #e5e7eb;
-        box-border:black;
+      
     }
 
     section[data-testid="stSidebar"] > div {
@@ -81,7 +81,7 @@ css_code = """
     .sidebar-brand {
         background: linear-gradient(135deg, #0f172a, #1e3a8a);
         padding: 18px;
-        border-radius: 16px;
+        border-radius: 16px black;
         margin-bottom: 18px;
     }
 
