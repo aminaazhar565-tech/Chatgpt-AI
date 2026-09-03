@@ -3,6 +3,7 @@ import streamlit as st
 from langchain_openai import ChatOpenAI
 from langchain_core.messages import SystemMessage, HumanMessage, AIMessage
 
+
 # --------------------------------------------------
 # PAGE CONFIG
 # --------------------------------------------------
@@ -13,18 +14,17 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
+
 # --------------------------------------------------
 # CUSTOM CSS
 # --------------------------------------------------
 st.markdown("""
 <style>
 
-    /* Main background */
     .stApp {
         background: #f5f7fb;
     }
 
-    /* Header */
     .finance-header {
         background: linear-gradient(135deg, #0f172a, #1e293b);
         padding: 28px 32px;
@@ -46,7 +46,6 @@ st.markdown("""
         font-size: 15px;
     }
 
-    /* Sidebar */
     section[data-testid="stSidebar"] {
         background: #0f172a;
     }
@@ -55,7 +54,6 @@ st.markdown("""
         color: black;
     }
 
-    /* Cards */
     .info-card {
         background: white;
         padding: 20px;
@@ -75,18 +73,6 @@ st.markdown("""
         font-size: 14px;
     }
 
-    /* Status */
-    .status {
-        padding: 10px 14px;
-        border-radius: 10px;
-        background: #14532d;
-        color: #dcfce7;
-        text-align: center;
-        font-size: 13px;
-        margin-top: 10px;
-    }
-
-    /* Disclaimer */
     .disclaimer {
         font-size: 12px;
         color: #64748b;
@@ -96,6 +82,7 @@ st.markdown("""
 
 </style>
 """, unsafe_allow_html=True)
+
 
 # --------------------------------------------------
 # HEADER
@@ -107,11 +94,69 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
+
 # --------------------------------------------------
 # SESSION STATE
 # --------------------------------------------------
 if "messages" not in st.session_state:
     st.session_state.messages = []
+
+if "api_valid" not in st.session_state:
+    st.session_state.api_valid = False
+
+if "tested_api_key" not in st.session_state:
+    st.session_state.tested_api_key = ""
+
+if "api_error" not in st.session_state:
+    st.session_state.api_error = ""
+
+
+# --------------------------------------------------
+# API KEY VALIDATION FUNCTION
+# --------------------------------------------------
+def validate_api_key():
+    """
+    Automatically tests the OpenAI API key when the
+    user enters/changes the key.
+    """
+
+    key = st.session_state.get("api_key_input", "").strip()
+
+    # Reset if empty
+    if not key:
+        st.session_state.api_valid = False
+        st.session_state.tested_api_key = ""
+        st.session_state.api_error = ""
+        return
+
+    # Don't test the exact same key repeatedly
+    if key == st.session_state.tested_api_key:
+        return
+
+    st.session_state.api_valid = False
+    st.session_state.api_error = ""
+
+    try:
+        test_chat = ChatOpenAI(
+            model="gpt-4o-mini",
+            temperature=0,
+            api_key=key
+        )
+
+        # Small test request
+        test_chat.invoke(
+            "Reply with exactly: API_KEY_VALID"
+        )
+
+        st.session_state.api_valid = True
+        st.session_state.tested_api_key = key
+        st.session_state.api_error = ""
+
+    except Exception as e:
+        st.session_state.api_valid = False
+        st.session_state.tested_api_key = key
+        st.session_state.api_error = str(e)
+
 
 # --------------------------------------------------
 # SIDEBAR
@@ -119,29 +164,58 @@ if "messages" not in st.session_state:
 with st.sidebar:
 
     st.markdown("## 💰 FinanceAI")
-
     st.caption("Personal Finance Assistant")
 
     st.divider()
 
+    # --------------------------------------------------
     # API KEY
+    # --------------------------------------------------
     st.markdown("### 🔑 OpenAI API Key")
 
     api_key = st.text_input(
         "Enter your API key",
         type="password",
         placeholder="sk-...",
-        help="Your API key is used for this session."
+        key="api_key_input",
+        on_change=validate_api_key,
+        help="Your API key is tested automatically after you enter it."
     )
 
+    # API STATUS
     if api_key:
-        st.success("API Key Added ✓")
+
+        if st.session_state.api_valid:
+
+            st.success("✅ API Key is valid!")
+
+            st.caption(
+                "Chat is unlocked. You can now ask FinanceAI questions."
+            )
+
+        elif st.session_state.api_error:
+
+            st.error("❌ Invalid API Key")
+
+            st.caption(
+                "Please check your API key and enter a valid key."
+            )
+
+        else:
+
+            st.info("🔄 Testing API Key...")
+
     else:
-        st.warning("Enter API Key to start AI")
+
+        st.warning(
+            "🔒 Enter a valid API Key to unlock the chat."
+        )
 
     st.divider()
 
+    # --------------------------------------------------
     # MODEL
+    # --------------------------------------------------
     st.markdown("### ⚙️ AI Settings")
 
     model_name = st.selectbox(
@@ -161,7 +235,9 @@ with st.sidebar:
 
     st.divider()
 
+    # --------------------------------------------------
     # DOMAIN
+    # --------------------------------------------------
     st.markdown("### 🎯 Finance Domain")
 
     domain = st.selectbox(
@@ -177,8 +253,13 @@ with st.sidebar:
 
     st.divider()
 
+    # --------------------------------------------------
     # CLEAR CHAT
-    if st.button("🗑️ Clear Conversation", use_container_width=True):
+    # --------------------------------------------------
+    if st.button(
+        "🗑️ Clear Conversation",
+        use_container_width=True
+    ):
         st.session_state.messages = []
         st.rerun()
 
@@ -192,44 +273,95 @@ with st.sidebar:
         unsafe_allow_html=True
     )
 
+
 # --------------------------------------------------
 # SYSTEM PROMPT
 # --------------------------------------------------
 system_message = f"""
 You are FinanceAI, a professional AI Personal Finance Assistant.
 
-Your domain is: {domain}
+Your ONLY domain is FINANCE.
 
-Your responsibilities:
-- Explain financial concepts in simple language.
-- Help users understand income and expenses.
-- Help create realistic budgets.
-- Suggest practical saving strategies.
-- Analyze spending patterns when data is provided.
-- Help users improve financial organization.
-- Explain financial terminology.
-- Provide educational information about investing.
+Current finance focus:
+{domain}
 
-Important rules:
+You can help users with:
+
+- Personal finance
+- Budgeting
+- Income and expenses
+- Expense analysis
+- Saving money
+- Financial goals
+- Debt management
+- Financial planning
+- Investment education
+- Financial terminology
+- Basic investing concepts
+- Money management
+- Emergency funds
+- Credit and loans
+- Banking concepts
+- Financial calculations
+- Spending analysis
+- Saving strategies
+
+STRICT DOMAIN RULE:
+
+You MUST ONLY answer questions related to finance, money,
+personal finance, budgeting, saving, investing, expenses,
+income, debt, loans, banking, financial planning, or financial education.
+
+If the user asks something unrelated to finance, DO NOT answer that question.
+
+Instead respond exactly:
+
+"Sorry, I am not able to answer this question. I can only help with finance and personal finance topics."
+
+Examples of NON-FINANCE questions:
+- Write me a Python program
+- Tell me a joke
+- Who is the president?
+- Help me with chemistry
+- Write an essay
+- What is the weather?
+- Tell me a recipe
+- Help me with mathematics unrelated to finance
+
+For unrelated questions, NEVER provide the actual answer.
+
+IMPORTANT FINANCIAL SAFETY RULES:
+
 - Never guarantee investment returns.
 - Never claim certainty about future market performance.
-- Clearly mention assumptions.
+- Clearly mention assumptions when necessary.
 - Do not present yourself as a licensed financial advisor.
 - Encourage users to verify important financial decisions with a qualified professional.
+- Give educational information rather than guaranteed financial advice.
 
-Always give clear, structured and practical answers.
+RESPONSE STYLE:
+
+- Use simple language.
+- Be clear and practical.
+- Use headings and bullet points when useful.
+- Give examples when helpful.
+- If calculations are needed, show the calculation clearly.
 """
 
+
 # --------------------------------------------------
-# CREATE AI MODEL
+# CREATE AI MODEL ONLY AFTER VALID API KEY
 # --------------------------------------------------
-if api_key:
+chat = None
+
+if st.session_state.api_valid:
 
     chat = ChatOpenAI(
         model=model_name,
         temperature=temperature,
         api_key=api_key
     )
+
 
 # --------------------------------------------------
 # WELCOME SECTION
@@ -241,6 +373,7 @@ if len(st.session_state.messages) == 0:
     col1, col2, col3 = st.columns(3)
 
     with col1:
+
         st.markdown("""
         <div class="info-card">
         <h3>💳 Expenses</h3>
@@ -249,6 +382,7 @@ if len(st.session_state.messages) == 0:
         """, unsafe_allow_html=True)
 
     with col2:
+
         st.markdown("""
         <div class="info-card">
         <h3>🎯 Budget</h3>
@@ -257,6 +391,7 @@ if len(st.session_state.messages) == 0:
         """, unsafe_allow_html=True)
 
     with col3:
+
         st.markdown("""
         <div class="info-card">
         <h3>📈 Savings</h3>
@@ -264,10 +399,20 @@ if len(st.session_state.messages) == 0:
         </div>
         """, unsafe_allow_html=True)
 
-    st.info(
-        "💡 Enter your OpenAI API key in the left sidebar, "
-        "then ask FinanceAI a financial question below."
-    )
+    if not st.session_state.api_valid:
+
+        st.info(
+            "🔐 Enter a valid OpenAI API key in the left sidebar. "
+            "Your API key will be tested automatically before the chat is unlocked."
+        )
+
+    else:
+
+        st.success(
+            "✅ API Key verified! FinanceAI is ready. "
+            "Ask your finance-related question below."
+        )
+
 
 # --------------------------------------------------
 # DISPLAY CHAT HISTORY
@@ -284,45 +429,56 @@ for msg in st.session_state.messages:
         with st.chat_message("assistant"):
             st.markdown(msg.content)
 
+
 # --------------------------------------------------
 # CHAT INPUT
 # --------------------------------------------------
 user_prompt = st.chat_input(
-    "Ask FinanceAI about budgeting, saving, expenses..."
+    "Ask FinanceAI about budgeting, saving, expenses...",
+    disabled=not st.session_state.api_valid
 )
 
+
+# --------------------------------------------------
+# PROCESS USER QUESTION
+# --------------------------------------------------
 if user_prompt:
 
-    if not api_key:
+    if not st.session_state.api_valid:
 
         st.error(
-            "🔑 Please enter your OpenAI API Key in the left sidebar first."
+            "🔒 Please enter a valid OpenAI API key first."
         )
 
     else:
 
-        # Add system message only when needed
+        # Build conversation
         messages_for_ai = [
             SystemMessage(content=system_message)
         ]
 
-        messages_for_ai.extend(st.session_state.messages)
+        messages_for_ai.extend(
+            st.session_state.messages
+        )
 
-        # Add user message
         human_message = HumanMessage(
             content=user_prompt
         )
 
-        messages_for_ai.append(human_message)
+        messages_for_ai.append(
+            human_message
+        )
 
         # Display user message
         with st.chat_message("user"):
             st.markdown(user_prompt)
 
-        # Generate response
+        # Generate AI response
         with st.chat_message("assistant"):
 
-            with st.spinner("FinanceAI is analyzing your request..."):
+            with st.spinner(
+                "FinanceAI is analyzing your request..."
+            ):
 
                 try:
 
@@ -340,7 +496,9 @@ if user_prompt:
                     )
 
                     st.session_state.messages.append(
-                        AIMessage(content=answer)
+                        AIMessage(
+                            content=answer
+                        )
                     )
 
                 except Exception as e:
@@ -348,4 +506,6 @@ if user_prompt:
                     st.error(
                         f"❌ Something went wrong:\n\n{str(e)}"
                     )
+
+
 
