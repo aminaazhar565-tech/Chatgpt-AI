@@ -59,6 +59,7 @@ css_code = """
     section[data-testid="stSidebar"] {
         background: #ffffff !important;
         border-right: 1px solid #e5e7eb;
+        box-border:black;
     }
 
     section[data-testid="stSidebar"] > div {
