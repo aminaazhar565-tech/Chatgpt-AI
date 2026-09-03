@@ -52,7 +52,7 @@ st.markdown("""
     }
 
     section[data-testid="stSidebar"] * {
-        color: #e2e8f0;
+        color: black;
     }
 
     /* Cards */
