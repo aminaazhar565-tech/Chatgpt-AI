@@ -4,9 +4,9 @@ from langchain_openai import ChatOpenAI
 from langchain_core.messages import SystemMessage, HumanMessage, AIMessage
 
 
-# --------------------------------------------------
+# ==========================================================
 # PAGE CONFIG
-# --------------------------------------------------
+# ==========================================================
 st.set_page_config(
     page_title="FinanceAI | Personal Finance Assistant",
     page_icon="💰",
@@ -15,89 +15,280 @@ st.set_page_config(
 )
 
 
-# --------------------------------------------------
-# CUSTOM CSS
-# --------------------------------------------------
+# ==========================================================
+# PROFESSIONAL CSS
+# ==========================================================
 st.markdown("""
 <style>
 
+    /* =====================================================
+       GLOBAL
+       ===================================================== */
+
     .stApp {
-        background: #f5f7fb;
+        background: #f6f8fc;
     }
 
+    .main .block-container {
+        padding-top: 2rem;
+        padding-bottom: 3rem;
+        max-width: 1200px;
+    }
+
+
+    /* =====================================================
+       HEADER
+       ===================================================== */
+
     .finance-header {
-        background: linear-gradient(135deg, #0f172a, #1e293b);
-        padding: 28px 32px;
-        border-radius: 20px;
+        background: linear-gradient(
+            135deg,
+            #0f172a 0%,
+            #172554 50%,
+            #1e3a8a 100%
+        );
+
+        padding: 30px 34px;
+        border-radius: 22px;
         margin-bottom: 25px;
-        color: white;
-        box-shadow: 0 8px 25px rgba(15,23,42,0.15);
+
+        box-shadow:
+            0 12px 30px rgba(15, 23, 42, 0.15);
     }
 
     .finance-header h1 {
+        color: white !important;
         margin: 0;
-        font-size: 34px;
-        font-weight: 700;
+        font-size: 36px;
+        font-weight: 750;
+        letter-spacing: -0.5px;
     }
 
     .finance-header p {
-        margin-top: 8px;
-        color: #cbd5e1;
+        color: #cbd5e1 !important;
+        margin: 8px 0 0 0;
         font-size: 15px;
     }
 
+
+    /* =====================================================
+       SIDEBAR
+       ===================================================== */
+
     section[data-testid="stSidebar"] {
-        background: #0f172a;
+        background: #ffffff !important;
+        border-right: 1px solid #e5e7eb;
     }
 
-    section[data-testid="stSidebar"] * {
-        color: black;
+    section[data-testid="stSidebar"] > div {
+        padding-top: 1.5rem;
     }
+
+    /* Sidebar text */
+    section[data-testid="stSidebar"] p,
+    section[data-testid="stSidebar"] label,
+    section[data-testid="stSidebar"] span,
+    section[data-testid="stSidebar"] div {
+        color: #1e293b;
+    }
+
+    section[data-testid="stSidebar"] h2,
+    section[data-testid="stSidebar"] h3 {
+        color: #0f172a !important;
+    }
+
+
+    /* Sidebar title */
+    .sidebar-brand {
+        background: linear-gradient(
+            135deg,
+            #0f172a,
+            #1e3a8a
+        );
+
+        padding: 18px;
+        border-radius: 16px;
+        margin-bottom: 18px;
+    }
+
+    .sidebar-brand-title {
+        color: white !important;
+        font-size: 22px;
+        font-weight: 700;
+        margin: 0;
+    }
+
+    .sidebar-brand-subtitle {
+        color: #cbd5e1 !important;
+        font-size: 12px;
+        margin-top: 4px;
+    }
+
+
+    /* =====================================================
+       API STATUS CARDS
+       ===================================================== */
+
+    .api-card {
+        padding: 14px 15px;
+        border-radius: 13px;
+        margin-top: 10px;
+        font-size: 13px;
+        line-height: 1.5;
+    }
+
+    .api-card.locked {
+        background: #fff7ed;
+        border: 1px solid #fed7aa;
+        color: #9a3412 !important;
+    }
+
+    .api-card.valid {
+        background: #f0fdf4;
+        border: 1px solid #bbf7d0;
+        color: #166534 !important;
+    }
+
+    .api-card.error {
+        background: #fef2f2;
+        border: 1px solid #fecaca;
+        color: #991b1b !important;
+    }
+
+
+    /* =====================================================
+       INFO CARDS
+       ===================================================== */
 
     .info-card {
         background: white;
-        padding: 20px;
-        border-radius: 16px;
-        border: 1px solid #e2e8f0;
-        box-shadow: 0 4px 15px rgba(15,23,42,0.06);
-        margin-bottom: 15px;
+        padding: 22px;
+        border-radius: 18px;
+        border: 1px solid #e5e7eb;
+
+        box-shadow:
+            0 5px 18px rgba(15, 23, 42, 0.05);
+
+        min-height: 145px;
+        transition: 0.2s;
+    }
+
+    .info-card:hover {
+        box-shadow:
+            0 8px 25px rgba(15, 23, 42, 0.09);
+    }
+
+    .info-card-icon {
+        font-size: 27px;
+        margin-bottom: 8px;
     }
 
     .info-card h3 {
-        margin-bottom: 5px;
-        color: #0f172a;
+        color: #0f172a !important;
+        font-size: 17px;
+        margin: 0 0 7px 0;
     }
 
     .info-card p {
-        color: #64748b;
-        font-size: 14px;
+        color: #64748b !important;
+        font-size: 13px;
+        margin: 0;
+        line-height: 1.6;
     }
 
+
+    /* =====================================================
+       SECTION TITLE
+       ===================================================== */
+
+    .section-title {
+        color: #0f172a;
+        font-size: 20px;
+        font-weight: 700;
+        margin-bottom: 15px;
+    }
+
+
+    /* =====================================================
+       CHAT INPUT
+       ===================================================== */
+
+    div[data-testid="stChatInput"] {
+        border-radius: 18px;
+    }
+
+    div[data-testid="stChatInput"] textarea {
+        border-radius: 16px !important;
+        border: 1px solid #cbd5e1 !important;
+        background: white !important;
+    }
+
+
+    /* =====================================================
+       CHAT MESSAGE
+       ===================================================== */
+
+    div[data-testid="stChatMessage"] {
+        border-radius: 16px;
+        margin-bottom: 10px;
+    }
+
+
+    /* =====================================================
+       DISCLAIMER
+       ===================================================== */
+
     .disclaimer {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        padding: 14px 16px;
+        border-radius: 13px;
+        color: #64748b !important;
+        font-size: 11px;
+        line-height: 1.5;
+        margin-top: 20px;
+    }
+
+
+    /* =====================================================
+       STATUS BADGE
+       ===================================================== */
+
+    .ready-badge {
+        display: inline-block;
+        background: #dcfce7;
+        color: #166534 !important;
+        padding: 6px 12px;
+        border-radius: 20px;
         font-size: 12px;
-        color: #64748b;
-        text-align: center;
-        margin-top: 30px;
+        font-weight: 600;
+        margin-bottom: 12px;
     }
 
 </style>
 """, unsafe_allow_html=True)
 
 
-# --------------------------------------------------
+# ==========================================================
 # HEADER
-# --------------------------------------------------
+# ==========================================================
 st.markdown("""
 <div class="finance-header">
+
     <h1>💰 FinanceAI</h1>
-    <p>Your Personal AI Financial Assistant — Smart insights for better financial decisions.</p>
+
+    <p>
+        Your Personal AI Financial Assistant —
+        Smart insights for better financial decisions.
+    </p>
+
 </div>
 """, unsafe_allow_html=True)
 
 
-# --------------------------------------------------
+# ==========================================================
 # SESSION STATE
-# --------------------------------------------------
+# ==========================================================
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
@@ -111,25 +302,26 @@ if "api_error" not in st.session_state:
     st.session_state.api_error = ""
 
 
-# --------------------------------------------------
-# API KEY VALIDATION FUNCTION
-# --------------------------------------------------
+# ==========================================================
+# API KEY VALIDATION
+# ==========================================================
 def validate_api_key():
-    """
-    Automatically tests the OpenAI API key when the
-    user enters/changes the key.
-    """
 
-    key = st.session_state.get("api_key_input", "").strip()
+    key = st.session_state.get(
+        "api_key_input",
+        ""
+    ).strip()
 
-    # Reset if empty
+    # Empty key
     if not key:
+
         st.session_state.api_valid = False
         st.session_state.tested_api_key = ""
         st.session_state.api_error = ""
+
         return
 
-    # Don't test the exact same key repeatedly
+    # Avoid testing exact same key repeatedly
     if key == st.session_state.tested_api_key:
         return
 
@@ -137,15 +329,16 @@ def validate_api_key():
     st.session_state.api_error = ""
 
     try:
-        test_chat = ChatOpenAI(
+
+        test_model = ChatOpenAI(
             model="gpt-4o-mini",
             temperature=0,
             api_key=key
         )
 
-        # Small test request
-        test_chat.invoke(
-            "Reply with exactly: API_KEY_VALID"
+        # Small API test
+        test_model.invoke(
+            "Reply with exactly: VALID"
         )
 
         st.session_state.api_valid = True
@@ -153,73 +346,100 @@ def validate_api_key():
         st.session_state.api_error = ""
 
     except Exception as e:
+
         st.session_state.api_valid = False
         st.session_state.tested_api_key = key
         st.session_state.api_error = str(e)
 
 
-# --------------------------------------------------
+# ==========================================================
 # SIDEBAR
-# --------------------------------------------------
+# ==========================================================
 with st.sidebar:
 
-    st.markdown("## 💰 FinanceAI")
-    st.caption("Personal Finance Assistant")
+    # ------------------------------------------------------
+    # BRAND
+    # ------------------------------------------------------
 
-    st.divider()
+    st.markdown("""
+    <div class="sidebar-brand">
 
-    # --------------------------------------------------
+        <div class="sidebar-brand-title">
+            💰 FinanceAI
+        </div>
+
+        <div class="sidebar-brand-subtitle">
+            Personal Finance Assistant
+        </div>
+
+    </div>
+    """, unsafe_allow_html=True)
+
+
+    # ------------------------------------------------------
     # API KEY
-    # --------------------------------------------------
+    # ------------------------------------------------------
+
     st.markdown("### 🔑 OpenAI API Key")
 
-    api_key = st.text_input(
+    st.text_input(
         "Enter your API key",
         type="password",
         placeholder="sk-...",
         key="api_key_input",
         on_change=validate_api_key,
-        help="Your API key is tested automatically after you enter it."
+        help="Your API key is tested automatically."
     )
 
+
     # API STATUS
-    if api_key:
+    if not st.session_state.api_key_input:
 
-        if st.session_state.api_valid:
+        st.markdown("""
+        <div class="api-card locked">
+            🔒 <b>Chat Locked</b><br>
+            Enter your API key to activate FinanceAI.
+        </div>
+        """, unsafe_allow_html=True)
 
-            st.success("✅ API Key is valid!")
 
-            st.caption(
-                "Chat is unlocked. You can now ask FinanceAI questions."
-            )
+    elif st.session_state.api_valid:
 
-        elif st.session_state.api_error:
+        st.markdown("""
+        <div class="api-card valid">
+            ✅ <b>API Key Verified</b><br>
+            FinanceAI is ready to use.
+        </div>
+        """, unsafe_allow_html=True)
 
-            st.error("❌ Invalid API Key")
 
-            st.caption(
-                "Please check your API key and enter a valid key."
-            )
+    elif st.session_state.api_error:
 
-        else:
+        st.markdown("""
+        <div class="api-card error">
+            ❌ <b>API Key Error</b><br>
+            The entered key is invalid or unavailable.
+            Please check your key and try again.
+        </div>
+        """, unsafe_allow_html=True)
 
-            st.info("🔄 Testing API Key...")
 
     else:
 
-        st.warning(
-            "🔒 Enter a valid API Key to unlock the chat."
-        )
+        st.info("🔄 Testing API key...")
+
 
     st.divider()
 
-    # --------------------------------------------------
-    # MODEL
-    # --------------------------------------------------
+
+    # ------------------------------------------------------
+    # AI SETTINGS
+    # ------------------------------------------------------
+
     st.markdown("### ⚙️ AI Settings")
 
     model_name = st.selectbox(
-        "Select AI Model",
+        "AI Model",
         [
             "gpt-4o-mini",
             "gpt-4o"
@@ -228,17 +448,21 @@ with st.sidebar:
 
     temperature = st.slider(
         "Response Creativity",
-        0.0,
-        1.0,
-        0.4
+        min_value=0.0,
+        max_value=1.0,
+        value=0.4,
+        step=0.1
     )
+
 
     st.divider()
 
-    # --------------------------------------------------
-    # DOMAIN
-    # --------------------------------------------------
-    st.markdown("### 🎯 Finance Domain")
+
+    # ------------------------------------------------------
+    # FINANCE DOMAIN
+    # ------------------------------------------------------
+
+    st.markdown("### 🎯 Finance Focus")
 
     domain = st.selectbox(
         "Assistant Focus",
@@ -251,107 +475,141 @@ with st.sidebar:
         ]
     )
 
+
     st.divider()
 
-    # --------------------------------------------------
+
+    # ------------------------------------------------------
     # CLEAR CHAT
-    # --------------------------------------------------
+    # ------------------------------------------------------
+
     if st.button(
         "🗑️ Clear Conversation",
         use_container_width=True
     ):
+
         st.session_state.messages = []
+
         st.rerun()
 
-    st.markdown(
-        """
-        <div class="disclaimer">
-        ⚠️ FinanceAI provides educational financial information.
-        It does not provide guaranteed returns or professional investment advice.
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
+
+    # ------------------------------------------------------
+    # DISCLAIMER
+    # ------------------------------------------------------
+
+    st.markdown("""
+    <div class="disclaimer">
+
+        ⚠️ <b>Financial Disclaimer</b><br><br>
+
+        FinanceAI provides educational financial information
+        and general guidance. It does not guarantee investment
+        returns or provide professional financial advice.
+
+    </div>
+    """, unsafe_allow_html=True)
 
 
-# --------------------------------------------------
+# ==========================================================
 # SYSTEM PROMPT
-# --------------------------------------------------
+# ==========================================================
 system_message = f"""
+
 You are FinanceAI, a professional AI Personal Finance Assistant.
 
-Your ONLY domain is FINANCE.
+Your ONLY purpose is to help users with FINANCE-related topics.
 
 Current finance focus:
 {domain}
 
-You can help users with:
 
-- Personal finance
-- Budgeting
-- Income and expenses
-- Expense analysis
-- Saving money
-- Financial goals
-- Debt management
-- Financial planning
-- Investment education
-- Financial terminology
-- Basic investing concepts
-- Money management
-- Emergency funds
-- Credit and loans
-- Banking concepts
-- Financial calculations
-- Spending analysis
-- Saving strategies
+==========================================================
+FINANCE TOPICS YOU CAN ANSWER
+==========================================================
 
-STRICT DOMAIN RULE:
+You can help with:
 
-You MUST ONLY answer questions related to finance, money,
-personal finance, budgeting, saving, investing, expenses,
-income, debt, loans, banking, financial planning, or financial education.
+• Personal finance
+• Budget planning
+• Monthly budgets
+• Income and expenses
+• Expense tracking
+• Expense analysis
+• Saving money
+• Saving strategies
+• Financial goals
+• Emergency funds
+• Debt management
+• Loans
+• Credit concepts
+• Banking concepts
+• Investment education
+• Basic investing concepts
+• Financial terminology
+• Money management
+• Financial planning
+• Financial calculations
+• Spending analysis
 
-If the user asks something unrelated to finance, DO NOT answer that question.
 
-Instead respond exactly:
+==========================================================
+STRICT FINANCE-ONLY RULE
+==========================================================
+
+You MUST ONLY answer questions related to finance.
+
+If the user's question is NOT related to finance,
+DO NOT answer it.
+
+Instead respond with:
 
 "Sorry, I am not able to answer this question. I can only help with finance and personal finance topics."
 
-Examples of NON-FINANCE questions:
-- Write me a Python program
-- Tell me a joke
-- Who is the president?
-- Help me with chemistry
-- Write an essay
-- What is the weather?
-- Tell me a recipe
-- Help me with mathematics unrelated to finance
 
-For unrelated questions, NEVER provide the actual answer.
+Examples of questions you MUST refuse:
 
-IMPORTANT FINANCIAL SAFETY RULES:
+• Write Python code
+• Help me with programming
+• Tell me a joke
+• Write an essay
+• Help me with chemistry
+• Help me with biology
+• Tell me a recipe
+• What is the weather?
+• Help me with history
+• General entertainment questions
+• General technology questions unrelated to finance
 
-- Never guarantee investment returns.
-- Never claim certainty about future market performance.
-- Clearly mention assumptions when necessary.
-- Do not present yourself as a licensed financial advisor.
-- Encourage users to verify important financial decisions with a qualified professional.
-- Give educational information rather than guaranteed financial advice.
 
-RESPONSE STYLE:
+==========================================================
+FINANCIAL SAFETY
+==========================================================
 
-- Use simple language.
-- Be clear and practical.
-- Use headings and bullet points when useful.
-- Give examples when helpful.
-- If calculations are needed, show the calculation clearly.
+• Never guarantee investment returns.
+• Never claim certainty about future markets.
+• Clearly state assumptions when needed.
+• Do not present yourself as a licensed financial advisor.
+• Encourage users to verify important financial decisions
+  with a qualified professional.
+
+
+==========================================================
+RESPONSE STYLE
+==========================================================
+
+• Use simple language.
+• Be professional.
+• Be practical.
+• Use headings when useful.
+• Use bullet points when useful.
+• Show calculations clearly.
+• Explain financial concepts step-by-step.
 """
 
 
-# --------------------------------------------------
-# CREATE AI MODEL ONLY AFTER VALID API KEY
-# --------------------------------------------------
+# ==========================================================
+# CREATE AI MODEL
+# ==========================================================
 chat = None
 
 if st.session_state.api_valid:
@@ -359,89 +617,135 @@ if st.session_state.api_valid:
     chat = ChatOpenAI(
         model=model_name,
         temperature=temperature,
-        api_key=api_key
+        api_key=st.session_state.api_key_input
     )
 
 
-# --------------------------------------------------
+# ==========================================================
 # WELCOME SECTION
-# --------------------------------------------------
+# ==========================================================
 if len(st.session_state.messages) == 0:
 
-    st.markdown("### 👋 Welcome to FinanceAI")
+    st.markdown(
+        '<div class="section-title">👋 Welcome to FinanceAI</div>',
+        unsafe_allow_html=True
+    )
+
+
+    if st.session_state.api_valid:
+
+        st.markdown(
+            '<div class="ready-badge">● FinanceAI is ready</div>',
+            unsafe_allow_html=True
+        )
+
 
     col1, col2, col3 = st.columns(3)
+
 
     with col1:
 
         st.markdown("""
         <div class="info-card">
-        <h3>💳 Expenses</h3>
-        <p>Understand where your money is going and identify spending patterns.</p>
+
+            <div class="info-card-icon">💳</div>
+
+            <h3>Expense Analysis</h3>
+
+            <p>
+                Understand where your money goes
+                and identify spending patterns.
+            </p>
+
         </div>
         """, unsafe_allow_html=True)
+
 
     with col2:
 
         st.markdown("""
         <div class="info-card">
-        <h3>🎯 Budget</h3>
-        <p>Create practical budgets and organize your monthly finances.</p>
+
+            <div class="info-card-icon">🎯</div>
+
+            <h3>Smart Budgeting</h3>
+
+            <p>
+                Create practical monthly budgets
+                and organize your finances.
+            </p>
+
         </div>
         """, unsafe_allow_html=True)
+
 
     with col3:
 
         st.markdown("""
         <div class="info-card">
-        <h3>📈 Savings</h3>
-        <p>Explore strategies to improve savings and reach financial goals.</p>
+
+            <div class="info-card-icon">📈</div>
+
+            <h3>Saving Strategy</h3>
+
+            <p>
+                Explore practical ways to save money
+                and reach financial goals.
+            </p>
+
         </div>
         """, unsafe_allow_html=True)
+
 
     if not st.session_state.api_valid:
 
         st.info(
-            "🔐 Enter a valid OpenAI API key in the left sidebar. "
-            "Your API key will be tested automatically before the chat is unlocked."
+            "🔐 Enter your OpenAI API key in the sidebar. "
+            "The key will be verified automatically, "
+            "then the chat will unlock."
         )
 
     else:
 
         st.success(
-            "✅ API Key verified! FinanceAI is ready. "
-            "Ask your finance-related question below."
+            "✅ API key verified. You can now ask your "
+            "finance-related question below."
         )
 
 
-# --------------------------------------------------
-# DISPLAY CHAT HISTORY
-# --------------------------------------------------
-for msg in st.session_state.messages:
+# ==========================================================
+# CHAT HISTORY
+# ==========================================================
+for message in st.session_state.messages:
 
-    if isinstance(msg, HumanMessage):
+    if isinstance(message, HumanMessage):
 
         with st.chat_message("user"):
-            st.markdown(msg.content)
+            st.markdown(message.content)
 
-    elif isinstance(msg, AIMessage):
+
+    elif isinstance(message, AIMessage):
 
         with st.chat_message("assistant"):
-            st.markdown(msg.content)
+            st.markdown(message.content)
 
 
-# --------------------------------------------------
+# ==========================================================
 # CHAT INPUT
-# --------------------------------------------------
+# ==========================================================
+# IMPORTANT:
+# Search bar is ALWAYS visible.
+# It is only disabled until API key is valid.
+
 user_prompt = st.chat_input(
-    "Ask FinanceAI about budgeting, saving, expenses...",
+    "Ask FinanceAI about budgeting, saving, expenses, investing...",
     disabled=not st.session_state.api_valid
 )
 
 
-# --------------------------------------------------
-# PROCESS USER QUESTION
-# --------------------------------------------------
+# ==========================================================
+# PROCESS QUESTION
+# ==========================================================
 if user_prompt:
 
     if not st.session_state.api_valid:
@@ -452,9 +756,14 @@ if user_prompt:
 
     else:
 
+        # ----------------------------------------------
         # Build conversation
+        # ----------------------------------------------
+
         messages_for_ai = [
-            SystemMessage(content=system_message)
+            SystemMessage(
+                content=system_message
+            )
         ]
 
         messages_for_ai.extend(
@@ -469,15 +778,24 @@ if user_prompt:
             human_message
         )
 
-        # Display user message
+
+        # ----------------------------------------------
+        # Display User
+        # ----------------------------------------------
+
         with st.chat_message("user"):
+
             st.markdown(user_prompt)
 
-        # Generate AI response
+
+        # ----------------------------------------------
+        # Generate Response
+        # ----------------------------------------------
+
         with st.chat_message("assistant"):
 
             with st.spinner(
-                "FinanceAI is analyzing your request..."
+                "💰 FinanceAI is analyzing..."
             ):
 
                 try:
@@ -490,7 +808,11 @@ if user_prompt:
 
                     st.markdown(answer)
 
+
+                    # ----------------------------------
                     # Save conversation
+                    # ----------------------------------
+
                     st.session_state.messages.append(
                         human_message
                     )
@@ -501,11 +823,17 @@ if user_prompt:
                         )
                     )
 
+
                 except Exception as e:
 
                     st.error(
-                        f"❌ Something went wrong:\n\n{str(e)}"
+                        "❌ Something went wrong."
                     )
+
+                    st.caption(
+                        str(e)
+                    )
+
 
 
 
